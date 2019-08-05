@@ -15,6 +15,7 @@ public class RaytraceDrawer : MonoBehaviour {
 
     public List<SphereData> Spheres;
     public List<LightingData> Lights;
+    public List<SingleTriangleData> Triangles;
 
     public Color BackgroundColor;
 

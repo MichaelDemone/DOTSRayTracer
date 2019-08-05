@@ -339,47 +339,85 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Spheres:
   - Position:
-      x: -1
-      y: 0
-      z: 2
-    Radius: 1
-    LightingData:
-      diffuseCoefficient: {r: 1, g: 0, b: 0, a: 0}
-      specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
-      phongExponent: 500
-  - Position:
       x: 0
-      y: 6.8
+      y: -253.7
       z: 5
-    Radius: 1
+    Radius: 250
     LightingData:
-      diffuseCoefficient: {r: 0, g: 1, b: 0.047753334, a: 0}
+      diffuseCoefficient: {r: 0, g: 0.9286413, b: 1, a: 0}
       specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
-      phongExponent: 500
-  - Position:
-      x: 1
-      y: 0
-      z: 8.39
-    Radius: 1
-    LightingData:
-      diffuseCoefficient: {r: 0, g: 0.26629424, b: 1, a: 0}
-      specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
-      phongExponent: 500
-  - Position:
-      x: 0
-      y: -240
-      z: 0
-    Radius: 500
-    LightingData:
-      diffuseCoefficient: {r: 0, g: 0.26629424, b: 1, a: 0}
-      specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
-      phongExponent: 500
+      phongExponent: 200
   Lights:
   - Position:
-      x: 4.53
-      y: 3.26
-      z: 5
+      x: 0.38
+      y: -1.91
+      z: 1.6
     Color: {r: 1, g: 1, b: 1, a: 0}
+  Triangles:
+  - a:
+      x: -1
+      y: 0
+      z: 6
+    b:
+      x: 0
+      y: 1
+      z: 5
+    c:
+      x: -1
+      y: 1
+      z: 6
+    LightingData:
+      diffuseCoefficient: {r: 1, g: 0, b: 0, a: 0}
+      specularCoefficient: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 0}
+      phongExponent: 1
+  - a:
+      x: -1
+      y: 0
+      z: 6
+    b:
+      x: 0
+      y: 0
+      z: 5
+    c:
+      x: 0
+      y: 1
+      z: 5
+    LightingData:
+      diffuseCoefficient: {r: 1, g: 0.9654912, b: 0, a: 0}
+      specularCoefficient: {r: 0.47058827, g: 0.47058827, b: 0.47058827, a: 0}
+      phongExponent: 1
+  - a:
+      x: 0
+      y: 0
+      z: 5
+    b:
+      x: 1
+      y: 0
+      z: 6
+    c:
+      x: 0
+      y: 1
+      z: 5
+    LightingData:
+      diffuseCoefficient: {r: 0.41296315, g: 1, b: 0, a: 0}
+      specularCoefficient: {r: 0.47058827, g: 0.47058827, b: 0.47058827, a: 0}
+      phongExponent: 1
+  - a:
+      x: 1
+      y: 0
+      z: 6
+    b:
+      x: 1
+      y: 1
+      z: 6
+    c:
+      x: 0
+      y: 1
+      z: 5
+    LightingData:
+      diffuseCoefficient: {r: 0, g: 0.32049346, b: 1, a: 0}
+      specularCoefficient: {r: 0.47058827, g: 0.47058827, b: 0.47058827, a: 0}
+      phongExponent: 1
   BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
   ViewportTransform: {fileID: 366286680}
   ViewportSize: {x: 10, y: 10}

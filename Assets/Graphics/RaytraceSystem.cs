@@ -11,6 +11,7 @@ using static Unity.Mathematics.math;
 public class RaytraceSystemUsingParallelFor : JobComponentSystem {
 
     public NativeArray<SphereData> Spheres;
+    public NativeArray<SingleTriangleData> Triangles;
     public NativeArray<LightingData> Lights;
     public NativeArray<Color> PixelColors;
     public Vector3 ViewportPosition;
@@ -29,7 +30,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
             RenderedResult = new Texture2D(Cam.pixelWidth, Cam.pixelHeight, TextureFormat.RGBAFloat, false);
         }
 
-        // Sphere and Lighting update
+        // Sphere, Triangles, and Lighting update
         {
             if (Spheres.Length != drawer.Spheres.Count) {
                 if(Spheres.IsCreated) Spheres.Dispose();
@@ -44,12 +45,22 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
                 Dirty = true;
             }
 
+            if(Triangles.Length != drawer.Triangles.Count) {
+                if(Triangles.IsCreated)
+                    Triangles.Dispose();
+                Triangles = new NativeArray<SingleTriangleData>(drawer.Triangles.Count, Allocator.Persistent);
+                Dirty = true;
+            }
+
             if (Dirty) {
                 for(int i = 0; i < drawer.Spheres.Count; i++) {
                     Spheres[i] = drawer.Spheres[i];
                 }
                 for(int i = 0; i < drawer.Lights.Count; i++) {
                     Lights[i] = drawer.Lights[i];
+                }
+                for(int i = 0; i < drawer.Triangles.Count; i++) {
+                    Triangles[i] = drawer.Triangles[i];
                 }
                 Dirty = false;
             }
@@ -59,6 +70,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
 
         job.Spheres = Spheres;
         job.Lights = Lights;
+        job.Triangles = Triangles;
         job.PixelColors = PixelColors;
         job.TextureSize = new int2(Cam.pixelWidth, Cam.pixelHeight);
         job.ViewportSize = new float2(ViewportSize.x, ViewportSize.y);
@@ -80,6 +92,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
         Spheres.Dispose();
         Lights.Dispose();
         PixelColors.Dispose();
+        Triangles.Dispose();
     }
 
     /// <summary>
@@ -93,6 +106,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
 
         // Data required to do the job
         [ReadOnly] public NativeArray<SphereData> Spheres;
+        [ReadOnly] public NativeArray<SingleTriangleData> Triangles;
         [ReadOnly] public NativeArray<LightingData> Lights;
         [ReadOnly] public int2 TextureSize;
         [ReadOnly] public float2 ViewportSize;
@@ -129,6 +143,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
             float3 closestIntersectionNormal = new float3(0, 0, 0);
             ObjectLightingData lightingData = new ObjectLightingData();
 
+            // Loop Spheres
             for(int i = 0; i < Spheres.Length; i++) { // No foreachs in jobs
                 SphereData sphere = Spheres[i];
 
@@ -167,7 +182,57 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
                 }
             }
 
-            // Lighting stuff
+            // Loop Triangles
+            for (int i = 0; i < Triangles.Length; i++) {
+                // No foreachs in jobs
+                SingleTriangleData triangle = Triangles[i];
+
+                float3 a = triangle.a;
+                float3 b = triangle.b;
+                float3 c = triangle.c;
+
+                float detA = determinant(
+                    float3x3(  a.x - b.x, a.x - c.x, d.x,
+                               a.y - b.y, a.y - c.y, d.y,
+                               a.z - b.z, a.z - c.z, d.z));
+
+                // Compute t
+                float t = determinant(
+                    float3x3(   a.x - b.x, a.x - c.x, a.x - e.x,
+                                a.y - b.y, a.y - c.y, a.y - e.y,
+                                a.z - b.z, a.z - c.z, a.z - e.z)) / 
+                                detA;
+
+                if (t < 0 || t > closestt)
+                    continue;
+
+                // Compute gamma
+                float gamma = determinant(
+                    float3x3(   a.x - b.x, a.x - e.x, d.x,
+                                a.y - b.y, a.y - e.y, d.y,
+                                a.z - b.z, a.z - e.z, d.z)) /
+                                detA;
+
+                if (gamma < 0 || gamma > 1)
+                    continue;
+
+                // Compute beta
+                float beta = determinant(
+                    float3x3(   a.x - e.x, a.x - c.x, d.x,
+                                a.y - e.y, a.y - c.y, d.y,
+                                a.z - e.z, a.z - c.z, d.z)) /
+                                detA;
+
+                if (beta < 0 || beta > 1 - gamma)
+                    continue;
+
+                closestt = t;
+                closestIntersectionPoint = e + t * d;
+                closestIntersectionNormal = normalize(cross(c - a, b - a));
+                lightingData = triangle.LightingData;
+            }
+
+            // Sphong Blinn Shading with no ambient lighting
             if (closestt < 1000000) {
                 float3 p = closestIntersectionPoint;
                 float3 n = closestIntersectionNormal;
@@ -196,6 +261,8 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
             else {
                 PixelColors[index] = BackgroundColor;
             }
+
+
         }
     }
 }
@@ -214,6 +281,11 @@ public struct SphereData {
     public ObjectLightingData LightingData;
 }
 
+[Serializable]
+public struct SingleTriangleData {
+    public float3 a, b, c; // corners a, b, and c
+    public ObjectLightingData LightingData;
+}
 
 [Serializable]
 public struct LightingData {
