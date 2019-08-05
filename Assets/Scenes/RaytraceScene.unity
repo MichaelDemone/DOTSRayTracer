@@ -319,7 +319,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1016793461}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -341,32 +341,45 @@ MonoBehaviour:
   - Position:
       x: -1
       y: 0
-      z: 5
-    Radius: 0.25
-    diffuseCoefficient: {r: 0, g: 0, b: 0, a: 0}
-    specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
-    phongExponent: 20
+      z: 2
+    Radius: 1
+    LightingData:
+      diffuseCoefficient: {r: 1, g: 0, b: 0, a: 0}
+      specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
+      phongExponent: 500
   - Position:
       x: 0
-      y: 1
+      y: 6.8
       z: 5
-    Radius: 0.25
-    diffuseCoefficient: {r: 0, g: 1, b: 0.06273794, a: 0}
-    specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
-    phongExponent: 20
+    Radius: 1
+    LightingData:
+      diffuseCoefficient: {r: 0, g: 1, b: 0.047753334, a: 0}
+      specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
+      phongExponent: 500
   - Position:
       x: 1
       y: 0
-      z: 5
-    Radius: 0.25
-    diffuseCoefficient: {r: 1, g: 0, b: 0, a: 0}
-    specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
-    phongExponent: 20
-  Lights:
+      z: 8.39
+    Radius: 1
+    LightingData:
+      diffuseCoefficient: {r: 0, g: 0.26629424, b: 1, a: 0}
+      specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
+      phongExponent: 500
   - Position:
       x: 0
-      y: 5
+      y: -240
       z: 0
+    Radius: 500
+    LightingData:
+      diffuseCoefficient: {r: 0, g: 0.26629424, b: 1, a: 0}
+      specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
+      phongExponent: 500
+  Lights:
+  - Position:
+      x: 4.53
+      y: 3.26
+      z: 5
     Color: {r: 1, g: 1, b: 1, a: 0}
+  BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
   ViewportTransform: {fileID: 366286680}
-  ViewportSize: {x: 3, y: 3}
+  ViewportSize: {x: 10, y: 10}

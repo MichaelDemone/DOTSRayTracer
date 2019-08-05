@@ -16,6 +16,8 @@ public class RaytraceDrawer : MonoBehaviour {
     public List<SphereData> Spheres;
     public List<LightingData> Lights;
 
+    public Color BackgroundColor;
+
     public Transform ViewportTransform;
     public Vector2 ViewportSize;
 
