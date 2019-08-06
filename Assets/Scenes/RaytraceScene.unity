@@ -347,6 +347,15 @@ MonoBehaviour:
       diffuseCoefficient: {r: 0, g: 0.9286413, b: 1, a: 0}
       specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
       phongExponent: 200
+  - Position:
+      x: 3
+      y: 6
+      z: 5
+    Radius: 3
+    LightingData:
+      diffuseCoefficient: {r: 0, g: 0.9286413, b: 1, a: 0}
+      specularCoefficient: {r: 1, g: 1, b: 1, a: 0}
+      phongExponent: 200
   Lights:
   - Position:
       x: 0.38
@@ -418,6 +427,7 @@ MonoBehaviour:
       diffuseCoefficient: {r: 0, g: 0.32049346, b: 1, a: 0}
       specularCoefficient: {r: 0.47058827, g: 0.47058827, b: 0.47058827, a: 0}
       phongExponent: 1
+  SuperSample: 1
   BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
   ViewportTransform: {fileID: 366286680}
   ViewportSize: {x: 10, y: 10}

@@ -17,6 +17,16 @@ public class RaytraceDrawer : MonoBehaviour {
     public List<LightingData> Lights;
     public List<SingleTriangleData> Triangles;
 
+    public enum SuperSampleAmount {
+        x1 = 1,
+        x2 = 2,
+        x4 = 4,
+        x8 = 8,
+        x16 = 16
+    }
+
+    public SuperSampleAmount SuperSample;
+
     public Color BackgroundColor;
 
     public Transform ViewportTransform;

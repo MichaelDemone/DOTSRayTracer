@@ -77,6 +77,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
         job.ViewportPosition = new float3(ViewportPosition.x, ViewportPosition.y, ViewportPosition.z);
         job.CameraPosition = new float3(Cam.transform.position.x, Cam.transform.position.y, Cam.transform.position.z);
         job.BackgroundColor = drawer.BackgroundColor;
+        job.SuperSamplingDegree = (int) drawer.SuperSample;
         RenderedResult.LoadRawTextureData(PixelColors);
         RenderedResult.Apply();
 
@@ -114,8 +115,12 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
         [ReadOnly] public float3 CameraPosition;
         [ReadOnly] public Color BackgroundColor;
 
+        // Can be 1, 2, 4, 8, 16
+        [ReadOnly] public int SuperSamplingDegree;
+
         public void Execute(int index) {
 
+            
             float3 pixelPos;
 
             // Calculate the pixels position in the game world
@@ -130,8 +135,25 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
                 pixelPos.y = ViewportPosition.y - (ViewportSize.y / 2) + (ViewportSize.y / TextureSize.y) * y;
                 pixelPos.z = ViewportPosition.z;
             }
-            
 
+            // Do super sampling by dividing pixel up into SuperSamplingDegree x SuperSamplingDegree pixels
+            // then ray tracing each pixel and averaging them.
+            float2 pixelSize = (ViewportSize / TextureSize);
+            Color c = new Color(0, 0, 0, 1);
+
+            for (int i = 0; i < SuperSamplingDegree; i++) {
+                float x = pixelPos.x + i * (pixelSize.x / (SuperSamplingDegree * 2));
+                for(int j = 0; j < SuperSamplingDegree; j++) {
+                    float y = pixelPos.y + j * (pixelSize.y / (SuperSamplingDegree * 2));
+                    float z = pixelPos.z;
+                    c += GetColor(float3(x, y, z)) / (SuperSamplingDegree * SuperSamplingDegree);
+                }
+            }
+
+            PixelColors[index] = c;
+        }
+
+        private Color GetColor(float3 pixelPos) {
             // Create ray from camera position to pixel position
             // e + t * d (where e is origin)
             float3 d = normalize(pixelPos - CameraPosition);
@@ -139,7 +161,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
 
             // Find closest intersection point
             float closestt = 1000000;
-            float3 closestIntersectionPoint = new float3(0,0,0);
+            float3 closestIntersectionPoint = new float3(0, 0, 0);
             float3 closestIntersectionNormal = new float3(0, 0, 0);
             ObjectLightingData lightingData = new ObjectLightingData();
 
@@ -165,10 +187,8 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
 
                 if(plust > 0 && minust > 0) {
                     // In front of camera
-                    PixelColors[index] = new Color32(0, 0, 0, 0);
-
                     float t = min(plust, minust);
-                    if (t < closestt) {
+                    if(t < closestt) {
                         closestIntersectionPoint = e + t * d;
                         closestIntersectionNormal = (closestIntersectionPoint - c) / R;
                         closestt = t;
@@ -183,7 +203,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
             }
 
             // Loop Triangles
-            for (int i = 0; i < Triangles.Length; i++) {
+            for(int i = 0; i < Triangles.Length; i++) {
                 // No foreachs in jobs
                 SingleTriangleData triangle = Triangles[i];
 
@@ -192,38 +212,38 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
                 float3 c = triangle.c;
 
                 float detA = determinant(
-                    float3x3(  a.x - b.x, a.x - c.x, d.x,
-                               a.y - b.y, a.y - c.y, d.y,
-                               a.z - b.z, a.z - c.z, d.z));
+                    float3x3(a.x - b.x, a.x - c.x, d.x,
+                        a.y - b.y, a.y - c.y, d.y,
+                        a.z - b.z, a.z - c.z, d.z));
 
                 // Compute t
                 float t = determinant(
-                    float3x3(   a.x - b.x, a.x - c.x, a.x - e.x,
-                                a.y - b.y, a.y - c.y, a.y - e.y,
-                                a.z - b.z, a.z - c.z, a.z - e.z)) / 
-                                detA;
+                              float3x3(a.x - b.x, a.x - c.x, a.x - e.x,
+                                  a.y - b.y, a.y - c.y, a.y - e.y,
+                                  a.z - b.z, a.z - c.z, a.z - e.z)) /
+                          detA;
 
-                if (t < 0 || t > closestt)
+                if(t < 0 || t > closestt)
                     continue;
 
                 // Compute gamma
                 float gamma = determinant(
-                    float3x3(   a.x - b.x, a.x - e.x, d.x,
-                                a.y - b.y, a.y - e.y, d.y,
-                                a.z - b.z, a.z - e.z, d.z)) /
-                                detA;
+                                  float3x3(a.x - b.x, a.x - e.x, d.x,
+                                      a.y - b.y, a.y - e.y, d.y,
+                                      a.z - b.z, a.z - e.z, d.z)) /
+                              detA;
 
-                if (gamma < 0 || gamma > 1)
+                if(gamma < 0 || gamma > 1)
                     continue;
 
                 // Compute beta
                 float beta = determinant(
-                    float3x3(   a.x - e.x, a.x - c.x, d.x,
-                                a.y - e.y, a.y - c.y, d.y,
-                                a.z - e.z, a.z - c.z, d.z)) /
-                                detA;
+                                 float3x3(a.x - e.x, a.x - c.x, d.x,
+                                     a.y - e.y, a.y - c.y, d.y,
+                                     a.z - e.z, a.z - c.z, d.z)) /
+                             detA;
 
-                if (beta < 0 || beta > 1 - gamma)
+                if(beta < 0 || beta > 1 - gamma)
                     continue;
 
                 closestt = t;
@@ -233,7 +253,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
             }
 
             // Sphong Blinn Shading with no ambient lighting
-            if (closestt < 1000000) {
+            if(closestt < 1000000) {
                 float3 p = closestIntersectionPoint;
                 float3 n = closestIntersectionNormal;
 
@@ -243,7 +263,7 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
                 Color color = new Color(0, 0, 0, 1);
 
                 // It's been hit! Calculate the color based on lighting
-                for (int j = 0; j < Lights.Length; j++) {
+                for(int j = 0; j < Lights.Length; j++) {
                     LightingData light = Lights[j];
 
                     // l = vector from light to intersect point
@@ -256,13 +276,9 @@ public class RaytraceSystemUsingParallelFor : JobComponentSystem {
                              pow(max(0, dot(n, h)), lightingData.phongExponent);
                 }
 
-                PixelColors[index] = color;
+                return color;
             }
-            else {
-                PixelColors[index] = BackgroundColor;
-            }
-
-
+            return BackgroundColor;
         }
     }
 }
